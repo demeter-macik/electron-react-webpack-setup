@@ -25,32 +25,25 @@ class DataTableComponent extends React.Component {
         ipcRenderer.send('get-data');
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         ipcRenderer.send('get-data');
     }
 
     componentDidMount() {
         this._mounted = true;
-        let self = this;
-
         ipcRenderer.on('got-data', (event, data) => {
             if (this._mounted) {
-                self.setState(function (state) {
-                    state.data = data;
-                }, function () {
-                    // ipcRenderer.send('some-message');
-                });
+                this.setState({data});
             }
         });
     }
 
     componentWillUnmount() {
         delete this._mounted;
-        ipcRenderer.removeAllListeners('got-data', (event, arg) => { });
+        ipcRenderer.removeAllListeners('got-data', () => {});
     }
 
     render() {
-
         let rows = this.state.data;
         const TableTemplate =
             <Table multiSelectable={true} selectable={false}>
@@ -76,7 +69,11 @@ class DataTableComponent extends React.Component {
 
         return (
             <div>
-                <RaisedButton label="Re-load" onClick={this.handleChange} style={style} />
+                <RaisedButton
+                    label="Re-load"
+                    onClick={this.handleChange}
+                    style={style}
+                />
                 {TableTemplate}
             </div>
         );
